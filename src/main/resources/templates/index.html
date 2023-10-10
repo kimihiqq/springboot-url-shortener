@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>URL Shortener</title>
+  <script>
+    async function shortenUrl() {
+      const originalUrl = document.getElementById("originalUrl").value;
+      const response = await fetch("/url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({originalUrl: originalUrl})
+      });
+
+      const data = await response.json();
+      const fullShortUrl = `http://localhost:8080/url/${data.shortUrl}`;
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = `<a href="${fullShortUrl}" target="_blank">${fullShortUrl}</a>
+                             <button onclick="goToShortUrl('${data.shortUrl}')">이동</button>`;
+    }
+
+    function goToShortUrl(shortUrl) {
+      const { protocol, host } = window.location;
+      window.location.href = `${protocol}//${host}/url/${shortUrl}`;
+    }
+
+  </script>
+</head>
+<body>
+
+<h1>URL Shortener</h1>
+
+<form th:action="@{/shortener/form}" method="post">
+  <input type="text" id="originalUrl" name="originalUrl" placeholder="Enter URL" required />
+  <button type="button" onclick="shortenUrl()">Shorten</button>
+</form>
+
+<div id="result">
+  <p th:if="${shortUrl != null}">Shortened URL: <a th:href="${shortUrl}" target="_blank" th:text="${shortUrl}"></a></p>
+</div>
+
+</body>
+</html>
